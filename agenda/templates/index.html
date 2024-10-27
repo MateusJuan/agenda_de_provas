@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Adicionar Prova</h1>
+    <form action="/" method="post">
+        <input type="text" name="materia">
+        <input type="submit" value="Agendar">
+    </form>
+
+    <h1>Provas</h1>
+    <table>
+        {% for prova in provas %}
+        <tr>
+            <td>
+                {{prova.materia}}
+            </td>
+            <td>
+                <form method="post" action="./update" style="display: inline;">
+                    <input type="hidden" value="{{prova.materia}}" name="antigamateria">
+                    <input type="hidden" value="{{prova.materia}}" name="ovamateria">
+                    <input type="submit" value="Atualizar">
+                </form>
+            </td>
+            <td>
+                <form method="post" action="./delete" style="display: inline;">
+                    <input type="hidden" value="{{prova.materia}}" name="materia">
+                    <input type="submit" value="Apagar">
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
