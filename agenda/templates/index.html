@@ -9,7 +9,8 @@
 <style>
     body{
         height: 100vh;
-        background:linear-gradient(195deg,green,black);
+        background:linear-gradient(195deg,rgb(60, 60, 85),rgb(58, 56, 56));
+        color: white;
         }
     input{
         background-color: rgba(0, 0, 0, 0.5);
@@ -26,7 +27,15 @@
         border: 2px solid black;
     }
     table{
-        background-color: rgba(255, 255, 255, 0.2);
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+        font-weight: bold;
+    }
+    .btn{
+        cursor: pointer;
+    }
+    .btn:hover{
+        background-color: rgba(0, 0, 0, 0.9);
         color: white;
         font-weight: bold;
     }
@@ -39,7 +48,7 @@
         <input type="text" name="materia" placeholder="Nome da Matéria" required>
         <input type="text" name="assunto" placeholder="Assunto da Prova">
         <input type="date" name="data" required>
-        <input type="submit" value="Agendar">
+        <input type="submit" value="Agendar" class="btn">
     </form>
 
     <h1>Provas</h1>
@@ -61,11 +70,11 @@
                     <input type="text" name="novamateria" placeholder="Novo Nome" required>
                     <input type="text" name="novoassunto" placeholder="Novo Assunto">
                     <input type="date" name="novadata">
-                    <input type="submit" value="Atualizar">
+                    <input type="submit" value="Atualizar" class="btn">
                 </form>
                 <form method="post" action="./delete" style="display: inline;">
                     <input type="hidden" value="{{ prova.materia }}" name="materia">
-                    <input type="submit" value="Apagar">
+                    <input type="submit" value="Apagar" class="btn">
                 </form>
             </td>
         </tr>
