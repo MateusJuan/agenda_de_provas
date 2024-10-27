@@ -1,61 +1,72 @@
 import os
-
-from flask import Flask
-from flask import render_template
-from flask import request
-from flask import redirect
-
+from flask import Flask, request, render_template, redirect
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 project_dir = os.path.dirname(os.path.abspath(__file__))
-
-database_file = "sqlite:///{}".format(os.path.join(project_dir,"provas.db"))
+database_file = "sqlite:///{}".format(os.path.join(project_dir, "provas.db"))
 
 app = Flask(__name__)
-
 app.config["SQLALCHEMY_DATABASE_URI"] = database_file
-
 db = SQLAlchemy(app)
 
-class prova(db.Model):
-    materia = db.Colum(db.String(80),unique=True ,null=False, primary_key=True)
+class Prova(db.Model):
+    materia = db.Column(db.String(80), unique=True, nullable=False, primary_key=True)
+    assunto = db.Column(db.String(200), nullable=True)
+    data = db.Column(db.Date, nullable=True)
 
     def __repr__(self):
-        return "<Materia {}>".format(self.materia)
-    
-@app.route('/', methods=["GET" , "POST"])
+        return "<Materia {}, Assunto {}, Data {}>".format(self.materia, self.assunto, self.data)
+
+with app.app_context():
+    db.create_all()
+
+@app.route('/', methods=["GET", "POST"])
 def home():
-    provas = None #None ou ""
-    if request.form:
-        try:
-            provas = prova(materia=request.form.get("Matéria"))
-            db.session.add(prova)
-            db.session.commit()
-        except Exception as e:
-            print("Falha ao adicionar prova")
-    provas = prova.query.all()
+    if request.method == "POST":
+        materia_input = request.form.get("materia")
+        assunto_input = request.form.get("assunto")
+        data_input = request.form.get("data")
+        
+        if materia_input and data_input:
+            try:
+                data_prova = datetime.strptime(data_input, "%Y-%m-%d").date()
+                nova_prova = Prova(materia=materia_input, assunto=assunto_input, data=data_prova)
+                db.session.add(nova_prova)
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                print("Falha ao adicionar prova:", e)
+    provas = Prova.query.all()
     return render_template("index.html", provas=provas)
 
 @app.route("/update", methods=["POST"])
 def update():
     try:
-        novamateria = request.form.get("Nova Matéria")
-        antigamateria = request.form.get("Matéria Antiga")
-        prova = prova.query.filter_by(materia=antigamateria).first()
-        prova.materia = novamateria
-        db.session.commit()
+        antigamateria = request.form.get("antigamateria")
+        novamateria = request.form.get("novamateria")
+        novoassunto = request.form.get("novoassunto")
+        novadata = request.form.get("novadata")
+
+        if novamateria and antigamateria:
+            prova = Prova.query.filter_by(materia=antigamateria).first()
+            prova.materia = novamateria
+            prova.assunto = novoassunto
+            prova.data = datetime.strptime(novadata, "%Y-%m-%d").date() if novadata else prova.data
+            db.session.commit()
     except Exception as e:
-        print("Falha ao atualizar")
-        return redirect("/")
-    
-@app.route("/delete",methods=["POST"])
+        db.session.rollback()
+        print("Falha ao atualizar:", e)
+    return redirect("/")
+
+@app.route("/delete", methods=["POST"])
 def delete():
-    materia = request.form.get("Matéria")
-    prova = prova.query.filter_by(materia=materia).first()
-    db.session.delete(prova)
-    db.session.commit()
+    materia = request.form.get("materia")
+    if materia:
+        prova = Prova.query.filter_by(materia=materia).first()
+        db.session.delete(prova)
+        db.session.commit()
     return redirect("/")
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0',debug=True)
-    
+    app.run(host='0.0.0.0', debug=True)
