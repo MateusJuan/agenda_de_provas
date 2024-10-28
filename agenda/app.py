@@ -1,4 +1,5 @@
-                                    import os
+import os
+
 from flask import Flask, request, render_template, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
