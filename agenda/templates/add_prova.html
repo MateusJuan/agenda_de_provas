@@ -73,7 +73,7 @@
         Voltar para o Início
     </a>
     <h1>Adicionar Prova</h1>
-    <form action="/" method="post">
+    <form action="{{url_for('add_prova')}}" method="post">
         <input type="text" name="materia" placeholder="Nome da Matéria" required>
         <input type="text" name="assunto" placeholder="Assunto da Prova">
         <input type="date" name="data" required>

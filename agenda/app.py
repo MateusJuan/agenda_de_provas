@@ -72,9 +72,14 @@ def update():
 def delete():
     materia = request.form.get("materia")
     if materia:
-        prova = Prova.query.filter_by(materia=materia).first()
-        db.session.delete(prova)
-        db.session.commit()
+        try:
+            prova = Prova.query.filter_by(materia=materia).first()
+            if prova:
+                db.session.delete(prova)
+                db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print("Falha ao Apagar:", e)
     return redirect(url_for("listar_provas"))
 
 if __name__ == "__main__":
