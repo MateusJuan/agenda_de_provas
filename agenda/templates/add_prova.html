@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="index.css">
+    <link rel="shortcut icon" href="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg" type="image/x-icon">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_back" />
+    <title>Adicionar Prova</title>
+
+    <style>
+        .material-symbols-outlined {
+         font-variation-settings:
+         'FILL' 0,
+         'wght' 400,
+         'GRAD' 0,
+         'opsz' 24
+     }
+     *{
+         font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+     }
+     body{
+         height: 100vh;
+         background:linear-gradient(195deg,rgb(60, 60, 85),rgb(58, 56, 56));
+         color: white;
+         }
+     input{
+         background-color: rgba(0, 0, 0, 0.5);
+         border: none;
+         outline: none;
+         border-radius: 15px;
+         padding: 8px;
+         color: white;
+     }
+     input::placeholder{
+         color: white;
+     }
+     table,thead,tbody,th,td{
+         border: 2px solid black;
+     }
+     table{
+         background-color: rgba(255, 255, 255, 0.1);
+         color: white;
+         font-weight: bold;
+     }
+     .btn{
+         cursor: pointer;
+         background-color: rgba(0, 0, 0, 0.5);
+         border: none;
+         outline: none;
+         border-radius: 15px;
+         padding: 8px;
+         color: white;
+     }
+     .btn:hover{
+         background-color: rgba(0, 0, 0, 0.9);
+         color: white;
+         font-weight: bold;
+     }
+     a{
+         text-decoration: none;
+         color: white;
+         font-weight: bold;
+     }
+     </style>
+
+</head>
+<body>
+    <a href="{{ url_for('home') }}">
+        <span class="material-symbols-outlined">
+            arrow_back
+        </span>
+        Voltar para o Início
+    </a>
+    <h1>Adicionar Prova</h1>
+    <form action="/" method="post">
+        <input type="text" name="materia" placeholder="Nome da Matéria" required>
+        <input type="text" name="assunto" placeholder="Assunto da Prova">
+        <input type="date" name="data" required>
+        <input type="submit" value="Agendar" class="btn">
+    </form>
+</body>
+</html>

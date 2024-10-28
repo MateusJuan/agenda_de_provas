@@ -1,8 +1,7 @@
-import os
-
-from flask import Flask, request, render_template, redirect
+from flask import Flask, request, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import os
 
 project_dir = os.path.dirname(os.path.abspath(__file__))
 database_file = "sqlite:///{}".format(os.path.join(project_dir, "provas.db"))
@@ -22,8 +21,12 @@ class Prova(db.Model):
 with app.app_context():
     db.create_all()
 
-@app.route('/', methods=["GET", "POST"])
+@app.route('/')
 def home():
+    return render_template("index.html")
+
+@app.route('/add', methods=["GET", "POST"])
+def add_prova():
     if request.method == "POST":
         materia_input = request.form.get("materia")
         assunto_input = request.form.get("assunto")
@@ -38,8 +41,13 @@ def home():
             except Exception as e:
                 db.session.rollback()
                 print("Falha ao adicionar prova:", e)
+            return redirect(url_for("listar_provas"))
+    return render_template("add_prova.html")
+
+@app.route('/listar')
+def listar_provas():
     provas = Prova.query.all()
-    return render_template("index.html", provas=provas)
+    return render_template("listar_provas.html", provas=provas)
 
 @app.route("/update", methods=["POST"])
 def update():
@@ -58,7 +66,7 @@ def update():
     except Exception as e:
         db.session.rollback()
         print("Falha ao atualizar:", e)
-    return redirect("/")
+    return redirect(url_for("listar_provas"))
 
 @app.route("/delete", methods=["POST"])
 def delete():
@@ -67,7 +75,7 @@ def delete():
         prova = Prova.query.filter_by(materia=materia).first()
         db.session.delete(prova)
         db.session.commit()
-    return redirect("/")
+    return redirect(url_for("listar_provas"))
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True)

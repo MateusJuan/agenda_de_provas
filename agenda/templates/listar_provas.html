@@ -6,10 +6,10 @@
     <link rel="stylesheet" href="index.css">
     <link rel="shortcut icon" href="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg" type="image/x-icon">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_back" />
-    <title>Agenda de Provas</title>
-
-<style>
-    .material-symbols-outlined {
+    <title>Lista de Provas</title>
+    
+    <style>
+       .material-symbols-outlined {
         font-variation-settings:
         'FILL' 0,
         'wght' 400,
@@ -62,14 +62,32 @@
         color: white;
         font-weight: bold;
     }
-</style>
+    </style>
 
 </head>
 <body>
-    <h1>Bem vindo(a)!</h1>
-    <p>Este site lhe ajudará a lembrar e angendar todas as provas e assuntos que terás neste semestre letivo.</p>
-    <a href="{{ url_for('add_prova') }}">Adicionar Prova</a> |
-    <a href="{{ url_for('listar_provas') }}">Listar Provas</a>
+    
+    <a href="{{ url_for('home') }}">
+        <span class="material-symbols-outlined">
+            arrow_back
+        </span>
+        Voltar para o Início
+    </a>
 
+    <h1>Lista de Provas</h1>
+    <table border="1">
+        <tr>
+            <th>Matéria</th>
+            <th>Assunto</th>
+            <th>Data</th>
+        </tr>
+        {% for prova in provas %}
+        <tr>
+            <td>{{ prova.materia }}</td>
+            <td>{{ prova.assunto }}</td>
+            <td>{{ prova.data }}</td>
+        </tr>
+        {% endfor %}
+    </table>
 </body>
 </html>
