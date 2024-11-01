@@ -3,3 +3,4 @@ sqlalchemy
 flask-sqlalchemy
 PyMySQL
 gunicorn
+supabase-py

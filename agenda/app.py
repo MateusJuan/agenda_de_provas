@@ -3,7 +3,6 @@ from supabase import create_client, Client
 from datetime import datetime
 import os
 
-# Configure sua URL e chave do Supabase
 SUPABASE_URL = 'https://crmckdcgjcavmeiouoxl.supabase.co'
 SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNybWNrZGNnamNhdm1laW91b3hsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzAzMDkzOTEsImV4cCI6MjA0NTg4NTM5MX0.i4zZ95r2AVHoXzJ-HDdpA_wgHMA5i1398ERFI1AYEbI'
 
@@ -23,19 +22,16 @@ def add_prova():
 
         if materia_input and data_input:
             try:
-                # Converte a data para string no formato ISO
                 data_prova = datetime.strptime(data_input, "%Y-%m-%d").date().isoformat()
                 nova_prova = {
                     "materia": materia_input,
                     "assunto": assunto_input,
-                    "data": data_prova  # Agora é uma string
+                    "data": data_prova 
                 }
                 
-                # Insere no Supabase
                 response = supabase.table('provas').insert(nova_prova).execute()
-                
-                # Verifica se a inserção foi bem-sucedida
-                if response.data:  # Se houver dados retornados
+            
+                if response.data: 
                     return redirect(url_for("listar_provas"))
                 else:
                     print("Erro ao adicionar prova:", response.error)
