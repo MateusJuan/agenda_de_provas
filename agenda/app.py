@@ -1,25 +1,13 @@
 from flask import Flask, request, render_template, redirect, url_for
-from flask_sqlalchemy import SQLAlchemy
+from supabase import create_client, Client
 from datetime import datetime
-import os
-
-project_dir = os.path.dirname(os.path.abspath(__file__))
-database_file = "sqlite:///{}".format(os.path.join(project_dir, "provas.db"))
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = database_file
-db = SQLAlchemy(app)
 
-class Prova(db.Model):
-    materia = db.Column(db.String(80), unique=True, nullable=False, primary_key=True)
-    assunto = db.Column(db.String(200), nullable=True)
-    data = db.Column(db.Date, nullable=True)
-
-    def __repr__(self):
-        return "<Materia {}, Assunto {}, Data {}>".format(self.materia, self.assunto, self.data)
-
-with app.app_context():
-    db.create_all()
+# Configuração do Supabase
+SUPABASE_URL = "https://crmckdcgjcavmeiouoxl.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNybWNrZGNnamNhdm1laW91b3hsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzAzMDkzOTEsImV4cCI6MjA0NTg4NTM5MX0.i4zZ95r2AVHoXzJ-HDdpA_wgHMA5i1398ERFI1AYEbI"
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 @app.route('/')
 def home():
@@ -28,44 +16,53 @@ def home():
 @app.route('/add', methods=["GET", "POST"])
 def add_prova():
     if request.method == "POST":
-        materia_input = request.form.get("materia")
-        assunto_input = request.form.get("assunto")
-        data_input = request.form.get("data")
+        materia = request.form.get("materia")
+        assunto = request.form.get("assunto")
+        data = request.form.get("data")
         
-        if materia_input and data_input:
+        if materia and data:
             try:
-                data_prova = datetime.strptime(data_input, "%Y-%m-%d").date()
-                nova_prova = Prova(materia=materia_input, assunto=assunto_input, data=data_prova)
-                db.session.add(nova_prova)
-                db.session.commit()
+                prova_data = {
+                    "materia": materia,
+                    "assunto": assunto,
+                    "data": data
+                }
+                response = supabase.table("provas").insert(prova_data).execute()
+                if response.status_code == 201:
+                    return redirect(url_for("listar_provas"))
             except Exception as e:
-                db.session.rollback()
                 print("Falha ao adicionar prova:", e)
-            return redirect(url_for("listar_provas"))
     return render_template("add_prova.html")
 
 @app.route('/listar')
 def listar_provas():
-    provas = Prova.query.all()
+    try:
+        response = supabase.table("provas").select("*").execute()
+        provas = response.data
+    except Exception as e:
+        provas = []
+        print("Falha ao listar provas:", e)
     return render_template("listar_provas.html", provas=provas)
 
 @app.route("/update", methods=["POST"])
 def update():
-    try:
-        antigamateria = request.form.get("antigamateria")
-        novamateria = request.form.get("novamateria")
-        novoassunto = request.form.get("novoassunto")
-        novadata = request.form.get("novadata")
+    antigamateria = request.form.get("antigamateria")
+    novamateria = request.form.get("novamateria")
+    novoassunto = request.form.get("novoassunto")
+    novadata = request.form.get("novadata")
 
-        if novamateria and antigamateria:
-            prova = Prova.query.filter_by(materia=antigamateria).first()
-            prova.materia = novamateria
-            prova.assunto = novoassunto
-            prova.data = datetime.strptime(novadata, "%Y-%m-%d").date() if novadata else prova.data
-            db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        print("Falha ao atualizar:", e)
+    if novamateria and antigamateria:
+        try:
+            prova_data = {
+                "materia": novamateria,
+                "assunto": novoassunto,
+                "data": novadata
+            }
+            response = supabase.table("provas").update(prova_data).eq("materia", antigamateria).execute()
+            if response.status_code != 204:
+                print("Falha ao atualizar prova:", response.json())
+        except Exception as e:
+            print("Falha ao atualizar prova:", e)
     return redirect(url_for("listar_provas"))
 
 @app.route("/delete", methods=["POST"])
@@ -73,13 +70,11 @@ def delete():
     materia = request.form.get("materia")
     if materia:
         try:
-            prova = Prova.query.filter_by(materia=materia).first()
-            if prova:
-                db.session.delete(prova)
-                db.session.commit()
+            response = supabase.table("provas").delete().eq("materia", materia).execute()
+            if response.status_code != 204:
+                print("Falha ao apagar prova:", response.json())
         except Exception as e:
-            db.session.rollback()
-            print("Falha ao Apagar:", e)
+            print("Falha ao apagar prova:", e)
     return redirect(url_for("listar_provas"))
 
 if __name__ == "__main__":
