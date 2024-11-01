@@ -1,8 +1,9 @@
+import os
 from flask import Flask, request, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-import os
 
+# Configurações do projeto e banco de dados
 project_dir = os.path.dirname(os.path.abspath(__file__))
 database_file = "sqlite:///{}".format(os.path.join(project_dir, "provas.db"))
 
@@ -10,6 +11,7 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = database_file
 db = SQLAlchemy(app)
 
+# Modelo de dados para Provas
 class Prova(db.Model):
     materia = db.Column(db.String(80), unique=True, nullable=False, primary_key=True)
     assunto = db.Column(db.String(200), nullable=True)
@@ -18,13 +20,16 @@ class Prova(db.Model):
     def __repr__(self):
         return "<Materia {}, Assunto {}, Data {}>".format(self.materia, self.assunto, self.data)
 
+# Cria o banco de dados
 with app.app_context():
     db.create_all()
 
+# Rota para a página inicial
 @app.route('/')
 def home():
     return render_template("index.html")
 
+# Rota para adicionar uma nova prova
 @app.route('/add', methods=["GET", "POST"])
 def add_prova():
     if request.method == "POST":
@@ -44,11 +49,13 @@ def add_prova():
             return redirect(url_for("listar_provas"))
     return render_template("add_prova.html")
 
+# Rota para listar todas as provas
 @app.route('/listar')
 def listar_provas():
     provas = Prova.query.all()
     return render_template("listar_provas.html", provas=provas)
 
+# Rota para atualizar uma prova existente
 @app.route("/update", methods=["POST"])
 def update():
     try:
@@ -59,15 +66,17 @@ def update():
 
         if novamateria and antigamateria:
             prova = Prova.query.filter_by(materia=antigamateria).first()
-            prova.materia = novamateria
-            prova.assunto = novoassunto
-            prova.data = datetime.strptime(novadata, "%Y-%m-%d").date() if novadata else prova.data
-            db.session.commit()
+            if prova:
+                prova.materia = novamateria
+                prova.assunto = novoassunto
+                prova.data = datetime.strptime(novadata, "%Y-%m-%d").date() if novadata else prova.data
+                db.session.commit()
     except Exception as e:
         db.session.rollback()
         print("Falha ao atualizar:", e)
     return redirect(url_for("listar_provas"))
 
+# Rota para deletar uma prova
 @app.route("/delete", methods=["POST"])
 def delete():
     materia = request.form.get("materia")
@@ -79,8 +88,9 @@ def delete():
                 db.session.commit()
         except Exception as e:
             db.session.rollback()
-            print("Falha ao Apagar:", e)
+            print("Falha ao deletar:", e)
     return redirect(url_for("listar_provas"))
 
+# Inicialização do servidor
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True)
